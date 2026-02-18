@@ -258,7 +258,14 @@ export default function Landing() {
             </div>
           </div>
 
-          <div style={{ marginTop: 24, display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div
+            style={{
+              marginTop: 24,
+              display: "flex",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
             <Link href="/app" style={{ textDecoration: "none" }}>
               <button style={primaryBtnBig}>Vai all’app</button>
             </Link>
@@ -286,6 +293,7 @@ export default function Landing() {
                 MVP in evoluzione: landing → app → dashboard.
               </div>
             </div>
+
             <div style={{ color: "#64748b" }}>
               <div>Contatti</div>
               <div style={{ marginTop: 6 }}>
@@ -305,20 +313,20 @@ export default function Landing() {
   );
 }
 
-/* Styles */
-const container: React.CSSProperties = {
+/* Styles (no React.CSSProperties: build-safe) */
+const container = {
   maxWidth: 1100,
   margin: "0 auto",
   padding: "0 20px",
-};
+} as const;
 
-const linkStyle: React.CSSProperties = {
+const linkStyle = {
   color: "#0f172a",
   textDecoration: "none",
   fontSize: 14,
-};
+} as const;
 
-const primaryBtn: React.CSSProperties = {
+const primaryBtn = {
   padding: "8px 12px",
   borderRadius: 10,
   border: "1px solid #0f172a",
@@ -326,9 +334,9 @@ const primaryBtn: React.CSSProperties = {
   color: "white",
   cursor: "pointer",
   fontSize: 14,
-};
+} as const;
 
-const secondaryBtn: React.CSSProperties = {
+const secondaryBtn = {
   padding: "8px 12px",
   borderRadius: 10,
   border: "1px solid #cbd5e1",
@@ -336,21 +344,21 @@ const secondaryBtn: React.CSSProperties = {
   color: "#0f172a",
   cursor: "pointer",
   fontSize: 14,
-};
+} as const;
 
-const primaryBtnBig: React.CSSProperties = {
+const primaryBtnBig = {
   ...primaryBtn,
   padding: "12px 18px",
   borderRadius: 14,
-};
+} as const;
 
-const secondaryBtnBig: React.CSSProperties = {
+const secondaryBtnBig = {
   ...secondaryBtn,
   padding: "12px 18px",
   borderRadius: 14,
-};
+} as const;
 
-const pill: React.CSSProperties = {
+const pill = {
   display: "inline-block",
   padding: "6px 10px",
   borderRadius: 999,
@@ -359,16 +367,141 @@ const pill: React.CSSProperties = {
   color: "#334155",
   fontSize: 12,
   marginBottom: 14,
-};
+} as const;
 
-const h1: React.CSSProperties = { fontSize: 46, lineHeight: 1.06, margin: 0 };
+const h1 = { fontSize: 46, lineHeight: 1.06, margin: 0 } as const;
 
-const lead: React.CSSProperties = {
+const lead = {
   fontSize: 17,
   lineHeight: 1.6,
   color: "#334155",
   marginTop: 14,
   maxWidth: 720,
-};
+} as const;
 
-const h2: React.CSS
+const h2 = { fontSize: 28, margin: 0 } as const;
+
+const sub = {
+  color: "#475569",
+  marginTop: 10,
+  marginBottom: 26,
+} as const;
+
+const grid3 = {
+  display: "grid",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gap: 16,
+} as const;
+
+const grid2 = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: 16,
+} as const;
+
+const card = {
+  background: "white",
+  border: "1px solid #e2e8f0",
+  borderRadius: 18,
+  padding: 18,
+  boxShadow: "0 10px 30px rgba(15,23,42,0.05)",
+} as const;
+
+const step = {
+  width: 34,
+  height: 34,
+  borderRadius: 12,
+  background: "#0f172a",
+  color: "white",
+  display: "grid",
+  placeItems: "center",
+  fontWeight: 700,
+  marginBottom: 10,
+} as const;
+
+const h3 = { margin: "6px 0 8px 0", fontSize: 18 } as const;
+
+const p = { margin: 0, color: "#475569", lineHeight: 1.6 } as const;
+
+const ul = {
+  margin: "10px 0 0 18px",
+  color: "#475569",
+  lineHeight: 1.9,
+} as const;
+
+const kpi = {
+  display: "flex",
+  gap: 10,
+  alignItems: "center",
+  padding: "10px 12px",
+  border: "1px solid #e2e8f0",
+  borderRadius: 16,
+  background: "rgba(255,255,255,0.75)",
+} as const;
+
+const kpiNum = { fontSize: 18 } as const;
+const kpiTitle = { fontWeight: 700, fontSize: 13 } as const;
+const kpiText = { color: "#64748b", fontSize: 12 } as const;
+
+const mockCard = {
+  borderRadius: 22,
+  border: "1px solid #e2e8f0",
+  background: "white",
+  boxShadow: "0 18px 60px rgba(15,23,42,0.10)",
+  overflow: "hidden",
+} as const;
+
+const mockTopBar = {
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  padding: "10px 12px",
+  borderBottom: "1px solid #e2e8f0",
+  background: "#f8fafc",
+} as const;
+
+const dot = (c: string) =>
+  ({
+    width: 10,
+    height: 10,
+    borderRadius: 99,
+    background: c,
+    display: "inline-block",
+  }) as const;
+
+const mockTitle = {
+  fontWeight: 800,
+  fontSize: 16,
+  marginBottom: 12,
+} as const;
+
+const mockRow = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  marginBottom: 10,
+} as const;
+
+const mockBadge = {
+  fontSize: 12,
+  padding: "4px 8px",
+  borderRadius: 999,
+  border: "1px solid #e2e8f0",
+  background: "#fff",
+  color: "#0f172a",
+} as const;
+
+const mockLine = {
+  height: 10,
+  background: "#e2e8f0",
+  borderRadius: 999,
+  flex: 1,
+} as const;
+
+const mockListItem = {
+  padding: "10px 12px",
+  border: "1px solid #e2e8f0",
+  borderRadius: 14,
+  marginTop: 10,
+  background: "#fff",
+} as const;
