@@ -1,0 +1,60 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+
+type Place = {
+  id: number;
+  name: string;
+  category: string;
+};
+
+export default function AppHome() {
+  const router = useRouter();
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function init() {
+      const { data } = await supabase.auth.getSession();
+
+      if (!data.session) {
+        router.replace("/login");
+        return;
+      }
+
+      const { data: placesData } = await supabase.from("places").select("*");
+
+      setPlaces(placesData || []);
+      setLoading(false);
+    }
+
+    init();
+  }, [router]);
+
+  if (loading) return <p>Caricamento...</p>;
+
+  return (
+    <main style={{ padding: 20 }}>
+      <h1>FipQuick App</h1>
+
+      <button
+        onClick={async () => {
+          await supabase.auth.signOut();
+          router.push("/login");
+        }}
+      >
+        Logout
+      </button>
+
+      <ul>
+        {places.map((p) => (
+          <li key={p.id}>
+            <strong>{p.name}</strong> – {p.category}
+          </li>
+        ))}
+      </ul>
+    </main>
+  );
+}

@@ -1,62 +1,37 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-
-type Place = {
-  id: number;
-  name: string;
-  category: string;
-};
-
-export default function Home() {
-  const router = useRouter();
-  const [places, setPlaces] = useState<Place[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function init() {
-      const { data } = await supabase.auth.getSession();
-
-      if (!data.session) {
-        router.replace("/login");
-        return;
-      }
-
-      const { data: placesData } = await supabase
-        .from("places")
-        .select("*");
-
-      setPlaces(placesData || []);
-      setLoading(false);
-    }
-
-    init();
-  }, [router]);
-
-  if (loading) return <p>Caricamento...</p>;
-
+export default function Landing() {
   return (
-    <main style={{ padding: 20 }}>
-      <h1>FipQuick</h1>
+    <main style={{ padding: 40, fontFamily: "system-ui" }}>
+      <h1 style={{ fontSize: 44, marginBottom: 10 }}>FipQuick</h1>
 
-      <button
-        onClick={async () => {
-          await supabase.auth.signOut();
-          router.push("/login");
-        }}
-      >
-        Logout
-      </button>
+      <p style={{ fontSize: 18, maxWidth: 700 }}>
+        Scopri luoghi, eventi e info utili in pochi secondi. Accesso rapido e
+        gestione semplice.
+      </p>
 
-      <ul>
-        {places.map((p) => (
-          <li key={p.id}>
-            <strong>{p.name}</strong> – {p.category}
-          </li>
-        ))}
-      </ul>
+      <div style={{ marginTop: 24, display: "flex", gap: 12 }}>
+        <Link href="/app">
+          <button style={{ padding: "10px 18px", cursor: "pointer" }}>
+            Entra nell’app
+          </button>
+        </Link>
+
+        <Link href="/login">
+          <button style={{ padding: "10px 18px", cursor: "pointer" }}>
+            Login
+          </button>
+        </Link>
+      </div>
+
+      <section style={{ marginTop: 50, maxWidth: 900 }}>
+        <h2 style={{ fontSize: 22 }}>Cosa fa</h2>
+        <ul style={{ lineHeight: 1.8 }}>
+          <li>Elenco luoghi e categorie</li>
+          <li>Accesso protetto con Supabase</li>
+          <li>Base pronta per funzionalità complete</li>
+        </ul>
+      </section>
     </main>
   );
 }
