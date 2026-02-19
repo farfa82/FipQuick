@@ -33,7 +33,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       // 2) listen auth changes (logout/login)
       unsub = supabase.auth.onAuthStateChange((_event, session) => {
-        if (!session) router.replace("/login");
+        // Se la sessione sparisce (logout) → torna alla landing
+        if (!session) router.replace("/");
       });
 
       setChecking(false);
@@ -47,6 +48,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }, [router, pathname]);
 
   if (checking) return <p style={{ padding: 20 }}>Caricamento...</p>;
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.replace("/"); // landing dopo logout
+  }
 
   return (
     <div className="appShell">
@@ -80,14 +86,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </nav>
 
         <div style={{ marginTop: "auto", paddingTop: 12 }}>
-          <button
-            className="btn-secondary"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              router.replace("/login");
-            }}
-            style={{ width: "100%" }}
-          >
+          <button className="btn-secondary" onClick={handleLogout} style={{ width: "100%" }}>
             Logout
           </button>
         </div>
@@ -148,14 +147,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </div>
 
             <div style={{ marginTop: 10 }}>
-              <button
-                className="btn-secondary"
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  router.replace("/login");
-                }}
-                style={{ width: "100%" }}
-              >
+              <button className="btn-secondary" onClick={handleLogout} style={{ width: "100%" }}>
                 Logout
               </button>
             </div>
