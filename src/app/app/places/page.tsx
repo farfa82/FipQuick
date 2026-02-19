@@ -237,25 +237,28 @@ export default function PlacesPage() {
             const badge = categoryBadge(key);
             const exp = daysUntil(p.expires_on);
 
-            const expLabel =
-              exp === null
-                ? null
-                : exp < 0
-                ? "Scaduto"
-                : exp <= 7
-                ? `Scade tra ${exp}g`
-                : exp <= 30
-                ? `Scade tra ${exp}g`
-                : null;
+           const exp = daysUntil(p.expires_on);
 
-            const expStyle =
-              expLabel === null
-                ? null
-                : exp !== null && exp < 0
-                ? statusChip("#fff1f2", "#be123c", "#fecdd3")
-                : exp <= 7
-                ? statusChip("rgba(245,158,11,0.14)", "#92400e", "rgba(245,158,11,0.35)")
-                : statusChip("rgba(14,165,233,0.12)", "#075985", "rgba(14,165,233,0.35)");
+	const expLabel: string | null =
+  		exp === null
+    		? null
+    		: exp < 0
+    		? "Scaduto"
+    		: exp <= 7
+    		? `Scade tra ${exp}g`
+    		: exp <= 30
+    		? `Scade tra ${exp}g`
+    		: null;
+
+	const expStyle =
+  		expLabel === null || exp === null
+    		? null
+    		: exp < 0
+    		? statusChip("#fff1f2", "#be123c", "#fecdd3")
+    		: exp <= 7
+    		? statusChip("rgba(245,158,11,0.14)", "#92400e", "rgba(245,158,11,0.35)")
+    		: statusChip("rgba(14,165,233,0.12)", "#075985", "rgba(14,165,233,0.35)");
+
 
             return (
               <div key={p.id} style={card}>
@@ -286,8 +289,9 @@ export default function PlacesPage() {
                       </span>
 
                       {expLabel && expStyle ? (
-                        <span style={{ ...smallChip, ...expStyle }}>{expLabel}</span>
-                      ) : null}
+  			<span style={{ ...smallChip, ...expStyle }}>{expLabel}</span>
+		) : null}
+
                     </div>
 
                     <div style={subRow}>
