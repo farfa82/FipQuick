@@ -1,8 +1,13 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "FipQuick",
-  description: "FipQuick",
+  title: "FipQuick – Supporto FIP felina",
+  description:
+    "Trova farmacie, cliniche veterinarie, caregiver e telemedicina per la gestione della FIP (Peritonite Infettiva Felina).",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -12,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it">
-      <body style={{ margin: 0 }}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
