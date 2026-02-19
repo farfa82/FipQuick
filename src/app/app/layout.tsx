@@ -22,12 +22,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* Sidebar desktop */}
       <aside className="appSidebar">
         <Link href="/" className="appBrand" title="Vai alla Home">
-          <div
+          <img
+            src="/logo.png"
+            alt="FipQuick"
+            width={34}
+            height={34}
             style={{
-              width: 34,
-              height: 34,
               borderRadius: 12,
-              background: "var(--brand-yellow)",
+              objectFit: "cover",
               border: "2px solid rgba(255,255,255,0.18)",
             }}
           />
@@ -68,7 +70,21 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <div className="drawerOverlay" onClick={() => setOpen(false)}>
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
             <div className="drawerCloseRow">
-              <div style={{ fontWeight: 950 }}>FipQuick</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <img
+                  src="/logo.png"
+                  alt="FipQuick"
+                  width={30}
+                  height={30}
+                  style={{
+                    borderRadius: 12,
+                    objectFit: "cover",
+                    border: "2px solid rgba(255,255,255,0.18)",
+                  }}
+                />
+                <div style={{ fontWeight: 950 }}>FipQuick</div>
+              </div>
+
               <button className="drawerCloseBtn" onClick={() => setOpen(false)}>
                 ✕
               </button>
