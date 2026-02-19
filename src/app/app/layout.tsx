@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ReactNode, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [checking, setChecking] = useState(true);
 
   const nav = useMemo(
     () => [
@@ -16,6 +19,34 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     ],
     []
   );
+
+  useEffect(() => {
+    let unsub: { data: { subscription: { unsubscribe: () => void } } } | null = null;
+
+    async function run() {
+      // 1) check session
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace(`/login?redirectTo=${encodeURIComponent(pathname || "/app")}`);
+        return;
+      }
+
+      // 2) listen auth changes (logout/login)
+      unsub = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!session) router.replace("/login");
+      });
+
+      setChecking(false);
+    }
+
+    run();
+
+    return () => {
+      unsub?.data.subscription.unsubscribe();
+    };
+  }, [router, pathname]);
+
+  if (checking) return <p style={{ padding: 20 }}>Caricamento...</p>;
 
   return (
     <div className="appShell">
@@ -47,6 +78,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </Link>
           ))}
         </nav>
+
+        <div style={{ marginTop: "auto", paddingTop: 12 }}>
+          <button
+            className="btn-secondary"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.replace("/login");
+            }}
+            style={{ width: "100%" }}
+          >
+            Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main */}
@@ -101,6 +145,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   {item.label}
                 </Link>
               ))}
+            </div>
+
+            <div style={{ marginTop: 10 }}>
+              <button
+                className="btn-secondary"
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  router.replace("/login");
+                }}
+                style={{ width: "100%" }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
