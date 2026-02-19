@@ -1,9 +1,35 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function Page() {
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  useEffect(() => {
+    let unsub: { data: { subscription: { unsubscribe: () => void } } } | null = null;
+
+    async function init() {
+      const { data } = await supabase.auth.getSession();
+      setIsAuthed(!!data.session);
+
+      unsub = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsAuthed(!!session);
+      });
+    }
+
+    init();
+
+    return () => {
+      unsub?.data.subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <main style={{ background: "var(--bg)", padding: "40px 0 70px" }}>
       <div className="container">
+        {/* Header semplice */}
         <header
           style={{
             display: "flex",
@@ -28,16 +54,13 @@ export default function Page() {
             <div style={{ fontWeight: 950, letterSpacing: 0.2 }}>FipQuick</div>
           </Link>
 
-          <nav style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Link href="/login">
-              <button className="btn-secondary">Login</button>
-            </Link>
-            <Link href="/app">
-              <button className="btn-primary">Entra nell’app</button>
-            </Link>
-          </nav>
+          {/* CTA unica */}
+          <Link href="/app">
+            <button className="btn-primary">{isAuthed ? "Vai all’app" : "Apri l’app"}</button>
+          </Link>
         </header>
 
+        {/* Hero */}
         <section
           style={{
             marginTop: 26,
@@ -49,7 +72,7 @@ export default function Page() {
             boxShadow: "0 18px 60px rgba(15,23,42,0.08)",
           }}
         >
-          <div style={{ maxWidth: 900 }}>
+          <div style={{ maxWidth: 980 }}>
             <div
               style={{
                 display: "inline-flex",
@@ -68,7 +91,7 @@ export default function Page() {
             </div>
 
             <h1 style={{ margin: "16px 0 10px", fontSize: 44, lineHeight: 1.08 }}>
-              Trova farmacie, cliniche e supporto vicino a te.
+              Trova supporto vicino a te, in modo chiaro e veloce.
             </h1>
 
             <div
@@ -82,24 +105,53 @@ export default function Page() {
             />
 
             <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 16, lineHeight: 1.7 }}>
-              FipQuick aiuta i proprietari di gatti a trovare rapidamente risorse utili:
-              farmacie con disponibilità, cliniche veterinarie, caregiver e telemedicina.
+              FipQuick aiuta i proprietari di gatti a trovare rapidamente{" "}
+              <strong>farmacie con disponibilità</strong>, <strong>cliniche veterinarie</strong>,
+              <strong> caregiver</strong> e <strong>telemedicina</strong>. Informazioni chiare e
+              accesso protetto.
             </p>
 
-            <div style={{ marginTop: 18, display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <div style={{ marginTop: 18 }}>
               <Link href="/app">
-                <button className="btn-primary">Apri l’app</button>
+                <button className="btn-primary">{isAuthed ? "Vai all’app" : "Apri l’app"}</button>
               </Link>
-              <Link href="/login">
-                <button className="btn-secondary">Accedi</button>
-              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Sezioni base (testi bozza, poi li rifiniamo) */}
+        <section style={{ marginTop: 18, display: "grid", gap: 12 }}>
+          <div className="card" style={{ padding: 16, borderRadius: 22 }}>
+            <div style={{ fontWeight: 950 }}>📍 Cosa trovi nell’app</div>
+            <div style={{ color: "var(--text-muted)", marginTop: 8, lineHeight: 1.65 }}>
+              - Farmacie con disponibilità (quando inserite dal team)<br />
+              - Cliniche veterinarie di supporto<br />
+              - Caregiver per assistenza nella terapia<br />
+              - Telemedicina (consulto e orientamento)
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: 16, borderRadius: 22 }}>
+            <div style={{ fontWeight: 950 }}>🧭 Come funziona</div>
+            <div style={{ color: "var(--text-muted)", marginTop: 8, lineHeight: 1.65 }}>
+              1) Apri l’app<br />
+              2) Accedi<br />
+              3) Cerca e filtra le risorse disponibili nella tua zona
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: 16, borderRadius: 22 }}>
+            <div style={{ fontWeight: 950 }}>🤝 Chi siamo</div>
+            <div style={{ color: "var(--text-muted)", marginTop: 8, lineHeight: 1.65 }}>
+              Un gruppo di volontari e professionisti che supporta i proprietari di gatti con FIP,
+              offrendo orientamento e strumenti pratici.
             </div>
           </div>
         </section>
 
         <footer style={{ marginTop: 18, color: "var(--text-muted)", fontSize: 13 }}>
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 14 }}>
-            I contenuti e i luoghi visibili nell’app sono gestiti dal team e aggiornati tramite database.
+            Le informazioni presenti nell’app vengono aggiornate dal team tramite database.
           </div>
         </footer>
       </div>
