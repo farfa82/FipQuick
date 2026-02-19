@@ -1,26 +1,232 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand (dal logo) */
+  --brand-yellow: #E6C04D;
+  --brand-yellow-hover: #d4ae3f;
+
+  --brand-blue: #1F2A44;
+  --brand-blue-light: #2c3a5a;
+
+  /* Accenti (tocchi B dalla zampa) */
+  --accent-teal: #2CA7A0;
+  --accent-purple: #9C5AA6;
+  --accent-orange: #F18A3D;
+
+  /* UI neutrals */
+  --text-primary: #1F2A44;
+  --text-muted: #6b7280;
+  --border: #e2e8f0;
+  --bg: #ffffff;
+  --bg-soft: #f7f8fb;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* --- Reset base --- */
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+/* --- UI helpers --- */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.06);
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  background: var(--brand-yellow);
+  color: var(--brand-blue);
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--brand-yellow-hover);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--brand-blue);
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.btn-dark {
+  background: var(--brand-blue);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-dark:hover {
+  background: var(--brand-blue-light);
+}
+
+/* --- Chips --- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: white;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chip-active {
+  border-color: rgba(230, 192, 77, 0.6);
+  background: rgba(230, 192, 77, 0.18);
+}
+
+/* --- App layout --- */
+.appShell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-soft);
+}
+
+.appSidebar {
+  width: 240px;
+  background: var(--brand-blue);
+  color: white;
+  padding: 22px 16px;
+}
+
+.appBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 18px;
+  font-weight: 950;
+  letter-spacing: 0.2px;
+}
+
+.appNav a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: white;
+  margin-bottom: 8px;
+  transition: 0.2s ease;
+  font-weight: 800;
+}
+
+.appNav a:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.appNav a.active {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.appMain {
+  flex: 1;
+  padding: 22px;
+}
+
+.appTopbar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .appSidebar {
+    display: none;
+  }
+
+  .appMain {
+    padding: 16px;
+  }
+
+  .appTopbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 10px 34px rgba(15, 23, 42, 0.06);
+    margin-bottom: 14px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Mobile drawer */
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+}
+
+.drawer {
+  width: 84vw;
+  max-width: 320px;
+  background: var(--brand-blue);
+  color: white;
+  padding: 18px 14px;
+}
+
+.drawerCloseRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.drawerCloseBtn {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 900;
 }

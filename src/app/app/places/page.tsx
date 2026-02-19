@@ -45,18 +45,20 @@ function getCategoryKey(category: string): CategoryKey {
   return "Tutte";
 }
 
-function badgeFor(cat: CategoryKey) {
+function categoryBadge(cat: CategoryKey) {
+  // A = base pulita con blu + giallo.
+  // B = tocchi controllati per distinguere categorie.
   switch (cat) {
     case "Farmacia":
-      return { label: "💊 Farmacia", bg: "rgba(14,165,233,0.12)", border: "rgba(14,165,233,0.35)" };
+      return { label: "💊 Farmacia", bg: "rgba(156,90,166,0.12)", border: "rgba(156,90,166,0.35)", color: "var(--brand-blue)" };
     case "Clinica":
-      return { label: "🏥 Clinica", bg: "rgba(20,184,166,0.12)", border: "rgba(20,184,166,0.35)" };
+      return { label: "🏥 Clinica", bg: "rgba(44,167,160,0.12)", border: "rgba(44,167,160,0.35)", color: "var(--brand-blue)" };
     case "Caregiver":
-      return { label: "🤝 Caregiver", bg: "rgba(99,102,241,0.10)", border: "rgba(99,102,241,0.28)" };
+      return { label: "🤝 Caregiver", bg: "rgba(241,138,61,0.12)", border: "rgba(241,138,61,0.35)", color: "var(--brand-blue)" };
     case "Telemedicina":
-      return { label: "📞 Telemedicina", bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.35)" };
+      return { label: "📞 Telemedicina", bg: "rgba(230,192,77,0.22)", border: "rgba(230,192,77,0.55)", color: "var(--brand-blue)" };
     default:
-      return { label: "📍 Supporto", bg: "rgba(15,23,42,0.05)", border: "rgba(226,232,240,0.9)" };
+      return { label: "📍 Supporto", bg: "rgba(15,23,42,0.05)", border: "rgba(226,232,240,0.9)", color: "var(--brand-blue)" };
   }
 }
 
@@ -122,10 +124,10 @@ export default function PlacesPage() {
   if (error) {
     return (
       <div>
-        <h1 style={{ marginTop: 0 }}>Trova supporto</h1>
+        <h1 style={{ marginTop: 0 }}>Luoghi</h1>
         <p style={{ color: "crimson" }}>Errore: {error}</p>
-        <p style={{ color: "#475569" }}>
-          Se l’errore parla di <strong>policy/RLS</strong>, Supabase sta bloccando la lettura.
+        <p style={{ color: "var(--text-muted)" }}>
+          Se l’errore parla di policy/RLS, Supabase sta bloccando la lettura.
         </p>
       </div>
     );
@@ -133,30 +135,59 @@ export default function PlacesPage() {
 
   return (
     <div>
-      <div style={headerRow}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 14, flexWrap: "wrap", alignItems: "flex-start" }}>
         <div>
-          <h1 style={{ marginTop: 0, marginBottom: 6 }}>Trova supporto</h1>
-          <p style={{ margin: 0, color: "#475569", lineHeight: 1.6 }}>
-            Cerca cliniche veterinarie, farmacie con disponibilità, caregiver e telemedicina.
+          <h1 style={{ marginTop: 0, marginBottom: 6 }}>Luoghi</h1>
+          <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.6 }}>
+            Cerca supporto: farmacie, cliniche, caregiver e telemedicina.
           </p>
         </div>
 
-        <div style={countCard}>
-          <div style={{ color: "#64748b", fontSize: 12 }}>Risultati</div>
+        <div className="card" style={{ padding: "12px 14px", borderRadius: 18, minWidth: 130 }}>
+          <div style={{ color: "var(--text-muted)", fontSize: 12 }}>Risultati</div>
           <div style={{ fontWeight: 950, fontSize: 22 }}>{filtered.length}</div>
         </div>
       </div>
 
-      <div style={controlsCard}>
-        <div style={controlsGrid}>
+      {/* Controls */}
+      <div
+        className="card"
+        style={{
+          marginTop: 14,
+          padding: 14,
+          borderRadius: 22,
+          background:
+            "radial-gradient(900px 220px at 18% 0%, rgba(230,192,77,0.20) 0%, rgba(230,192,77,0) 60%), radial-gradient(900px 220px at 84% 0%, rgba(44,167,160,0.16) 0%, rgba(44,167,160,0) 60%), white",
+        }}
+      >
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Cerca nome, città, indirizzo, telefono…"
-            style={searchInput}
+            style={{
+              width: "100%",
+              padding: "12px 12px",
+              borderRadius: 14,
+              border: "1px solid var(--border)",
+              outline: "none",
+              fontSize: 14,
+            }}
           />
 
-          <select value={category} onChange={(e) => setCategory(e.target.value as CategoryKey)} style={select}>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as CategoryKey)}
+            style={{
+              width: "100%",
+              padding: "12px 12px",
+              borderRadius: 14,
+              border: "1px solid var(--border)",
+              background: "white",
+              fontSize: 14,
+            }}
+          >
             <option value="Tutte">Tutte</option>
             <option value="Farmacia">Farmacie</option>
             <option value="Clinica">Cliniche</option>
@@ -164,69 +195,102 @@ export default function PlacesPage() {
             <option value="Telemedicina">Telemedicina</option>
           </select>
 
-          <label style={toggle}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 12px",
+              borderRadius: 14,
+              border: "1px solid var(--border)",
+              background: "rgba(255,255,255,0.9)",
+              userSelect: "none",
+              fontSize: 14,
+            }}
+          >
             <input type="checkbox" checked={onlyActive} onChange={(e) => setOnlyActive(e.target.checked)} />
             Mostra solo attivi
           </label>
         </div>
 
-        <div style={chipsRow}>
+        <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
           {(["Tutte", "Farmacia", "Clinica", "Caregiver", "Telemedicina"] as CategoryKey[]).map((c) => {
-            const b = badgeFor(c);
             const active = category === c;
             return (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
-                style={{
-                  ...chipBtn,
-                  background: active ? b.bg : "white",
-                  borderColor: active ? b.border : "#e2e8f0",
-                }}
+                className={`chip ${active ? "chip-active" : ""}`}
               >
-                {b.label}
+                {categoryBadge(c).label}
               </button>
             );
           })}
         </div>
       </div>
 
+      {/* List */}
       {filtered.length === 0 ? (
-        <div style={emptyCard}>Nessun risultato. Prova a cambiare filtro o a cercare con meno parole.</div>
+        <div className="card" style={{ marginTop: 14, padding: 14, borderRadius: 18, color: "var(--text-muted)" }}>
+          Nessun risultato. Prova a cambiare filtro o a cercare con meno parole.
+        </div>
       ) : (
-        <div style={list}>
+        <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
           {filtered.map((p) => {
-            const catKey = getCategoryKey(p.category);
-            const b = badgeFor(catKey);
+            const key = getCategoryKey(p.category);
+            const b = categoryBadge(key);
 
-            const activeChipStyle =
-              p.is_active === false
-                ? statusChip("#fff1f2", "#be123c", "#fecdd3")
-                : statusChip("rgba(34,197,94,0.10)", "#166534", "rgba(34,197,94,0.35)");
+            const isInactive = p.is_active === false;
 
             return (
-              <div key={p.id} style={card}>
-                <div style={titleRow}>
-                  <div style={name}>{p.name}</div>
+              <div key={p.id} className="card" style={{ padding: 14, borderRadius: 20 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                  <div style={{ fontWeight: 950, fontSize: 16, marginRight: 6 }}>{p.name}</div>
 
-                  <span style={{ ...chip, background: b.bg, borderColor: b.border }}>{b.label}</span>
+                  <span
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 999,
+                      border: `1px solid ${b.border}`,
+                      background: b.bg,
+                      color: b.color,
+                      fontSize: 12,
+                      fontWeight: 900,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {b.label}
+                  </span>
 
-                  <span style={{ ...chip, ...activeChipStyle }}>
-                    {p.is_active === false ? "Non attivo" : "Attivo"}
+                  <span
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 999,
+                      border: "1px solid var(--border)",
+                      background: isInactive ? "rgba(244,63,94,0.12)" : "rgba(34,197,94,0.10)",
+                      color: isInactive ? "#be123c" : "#166534",
+                      fontSize: 12,
+                      fontWeight: 900,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {isInactive ? "Non attivo" : "Attivo"}
                   </span>
                 </div>
 
-                <div style={subRow}>
-                  <span style={{ color: "#475569" }}>{p.category}</span>
-                </div>
+                <div style={{ marginTop: 8, fontSize: 13, color: "var(--text-muted)" }}>{p.category}</div>
 
-                <div style={meta}>
-                  <div><strong>Indirizzo:</strong> {p.address ?? "—"}</div>
-                  <div><strong>Telefono:</strong> {p.phone ?? "—"}</div>
+                <div style={{ marginTop: 10, fontSize: 13, color: "#334155", lineHeight: 1.7 }}>
+                  <div>
+                    <strong>Indirizzo:</strong> {p.address ?? "—"}
+                  </div>
+                  <div>
+                    <strong>Telefono:</strong> {p.phone ?? "—"}
+                  </div>
                   <div>
                     <strong>Sito:</strong>{" "}
                     {p.website ? (
-                      <a href={p.website} target="_blank" rel="noreferrer" style={link}>
+                      <a href={p.website} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>
                         Apri sito
                       </a>
                     ) : (
@@ -235,27 +299,33 @@ export default function PlacesPage() {
                   </div>
                 </div>
 
-                <div style={actions}>
-                  <a href={mapsLink(p.address, p.name)} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
-                    <button style={btn}>🧭 Indicazioni</button>
+                <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                  <a href={mapsLink(p.address, p.name)} target="_blank" rel="noreferrer">
+                    <button className="btn-secondary" style={{ width: "100%" }}>
+                      🧭 Indicazioni
+                    </button>
                   </a>
 
                   {p.website ? (
-                    <a href={p.website} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
-                      <button style={btn}>🌐 Sito</button>
+                    <a href={p.website} target="_blank" rel="noreferrer">
+                      <button className="btn-secondary" style={{ width: "100%" }}>
+                        🌐 Sito
+                      </button>
                     </a>
                   ) : (
-                    <button style={{ ...btn, opacity: 0.5 }} disabled>
+                    <button className="btn-secondary" style={{ width: "100%", opacity: 0.55 }} disabled>
                       🌐 Sito
                     </button>
                   )}
 
                   {p.phone ? (
-                    <a href={`tel:${cleanPhone(p.phone)}`} style={{ textDecoration: "none" }}>
-                      <button style={btnDark}>📞 Chiama</button>
+                    <a href={`tel:${cleanPhone(p.phone)}`}>
+                      <button className="btn-dark" style={{ width: "100%" }}>
+                        📞 Chiama
+                      </button>
                     </a>
                   ) : (
-                    <button style={{ ...btnDark, opacity: 0.5 }} disabled>
+                    <button className="btn-dark" style={{ width: "100%", opacity: 0.55 }} disabled>
                       📞 Chiama
                     </button>
                   )}
@@ -268,179 +338,3 @@ export default function PlacesPage() {
     </div>
   );
 }
-
-function statusChip(bg: string, color: string, border: string) {
-  return { background: bg, color, borderColor: border };
-}
-
-/* STYLES */
-const headerRow = {
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 14,
-  flexWrap: "wrap",
-  alignItems: "flex-start",
-} as const;
-
-const countCard = {
-  minWidth: 120,
-  background: "white",
-  border: "1px solid #e2e8f0",
-  borderRadius: 18,
-  padding: "12px 14px",
-  boxShadow: "0 12px 40px rgba(15,23,42,0.06)",
-} as const;
-
-const controlsCard = {
-  marginTop: 14,
-  background:
-    "radial-gradient(900px 220px at 20% 0%, rgba(14,165,233,0.10) 0%, rgba(14,165,233,0) 60%), radial-gradient(900px 220px at 80% 0%, rgba(20,184,166,0.14) 0%, rgba(20,184,166,0) 60%), white",
-  border: "1px solid #e2e8f0",
-  borderRadius: 22,
-  padding: 14,
-  boxShadow: "0 18px 60px rgba(15,23,42,0.08)",
-} as const;
-
-const controlsGrid = {
-  display: "grid",
-  gridTemplateColumns: "1fr",
-  gap: 10,
-} as const;
-
-const searchInput = {
-  width: "100%",
-  padding: "12px 12px",
-  borderRadius: 14,
-  border: "1px solid #e2e8f0",
-  outline: "none",
-  fontSize: 14,
-} as const;
-
-const select = {
-  width: "100%",
-  padding: "12px 12px",
-  borderRadius: 14,
-  border: "1px solid #e2e8f0",
-  background: "white",
-  fontSize: 14,
-} as const;
-
-const toggle = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  padding: "12px 12px",
-  borderRadius: 14,
-  border: "1px solid #e2e8f0",
-  background: "rgba(255,255,255,0.9)",
-  userSelect: "none",
-  fontSize: 14,
-} as const;
-
-const chipsRow = {
-  marginTop: 12,
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-} as const;
-
-const chipBtn = {
-  padding: "10px 12px",
-  borderRadius: 999,
-  border: "1px solid #e2e8f0",
-  background: "white",
-  cursor: "pointer",
-  fontWeight: 800,
-  fontSize: 13,
-} as const;
-
-const emptyCard = {
-  marginTop: 14,
-  padding: 14,
-  background: "white",
-  border: "1px solid #e2e8f0",
-  borderRadius: 18,
-  color: "#64748b",
-} as const;
-
-const list = {
-  marginTop: 14,
-  display: "grid",
-  gridTemplateColumns: "1fr",
-  gap: 12,
-} as const;
-
-const card = {
-  background: "white",
-  border: "1px solid #e2e8f0",
-  borderRadius: 20,
-  padding: 14,
-  boxShadow: "0 12px 40px rgba(15,23,42,0.06)",
-} as const;
-
-const titleRow = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: 8,
-  alignItems: "center",
-} as const;
-
-const name = {
-  fontWeight: 950,
-  fontSize: 16,
-  marginRight: 6,
-} as const;
-
-const chip = {
-  padding: "6px 10px",
-  borderRadius: 999,
-  border: "1px solid #e2e8f0",
-  background: "rgba(15,23,42,0.04)",
-  fontSize: 12,
-  fontWeight: 900,
-  whiteSpace: "nowrap",
-} as const;
-
-const subRow = {
-  marginTop: 8,
-  fontSize: 13,
-  color: "#64748b",
-} as const;
-
-const meta = {
-  marginTop: 10,
-  fontSize: 13,
-  color: "#334155",
-  lineHeight: 1.7,
-} as const;
-
-const link = {
-  color: "#0f172a",
-  textDecoration: "underline",
-} as const;
-
-const actions = {
-  marginTop: 12,
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr 1fr",
-  gap: 10,
-} as const;
-
-const btn = {
-  width: "100%",
-  padding: "10px 10px",
-  borderRadius: 14,
-  border: "1px solid #cbd5e1",
-  background: "white",
-  color: "#0f172a",
-  cursor: "pointer",
-  fontWeight: 900,
-  fontSize: 13,
-} as const;
-
-const btnDark = {
-  ...btn,
-  border: "none",
-  background: "#0f172a",
-  color: "white",
-} as const;
