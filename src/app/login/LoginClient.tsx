@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
 
   const redirectTo = searchParams.get("redirectTo") || "/app";
 
@@ -33,7 +32,6 @@ export default function LoginClient() {
     }
 
     router.replace(redirectTo);
-    router.refresh();
   }
 
   return (

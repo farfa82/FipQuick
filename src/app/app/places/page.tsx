@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-const supabase = createClient();
-
 type Place = {
   id: string;
   name: string;

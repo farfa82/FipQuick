@@ -8,28 +8,20 @@ export default function Page() {
   const [isAuthed, setIsAuthed] = useState(false);
 
   useEffect(() => {
-    let unsub: { data: { subscription: { unsubscribe: () => void } } } | null = null;
+    async function checkAuth() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    async function init() {
-      const { data } = await supabase.auth.getSession();
-      setIsAuthed(!!data.session);
-
-      unsub = supabase.auth.onAuthStateChange((_event, session) => {
-        setIsAuthed(!!session);
-      });
+      setIsAuthed(!!session);
     }
 
-    init();
-
-    return () => {
-      unsub?.data.subscription.unsubscribe();
-    };
+    checkAuth();
   }, []);
 
   return (
     <main style={{ background: "var(--bg)", padding: "40px 0 70px" }}>
       <div className="container">
-        {/* Header semplice */}
         <header
           style={{
             display: "flex",
@@ -39,7 +31,10 @@ export default function Page() {
             flexWrap: "wrap",
           }}
         >
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link
+            href="/"
+            style={{ display: "flex", alignItems: "center", gap: 12 }}
+          >
             <img
               src="/logo.png"
               alt="FipQuick"
@@ -54,13 +49,13 @@ export default function Page() {
             <div style={{ fontWeight: 950, letterSpacing: 0.2 }}>FipQuick</div>
           </Link>
 
-          {/* CTA unica */}
           <Link href="/app">
-            <button className="btn-primary">{isAuthed ? "Vai all’app" : "Apri l’app"}</button>
+            <button className="btn-primary">
+              {isAuthed ? "Vai all’app" : "Apri l’app"}
+            </button>
           </Link>
         </header>
 
-        {/* Hero */}
         <section
           style={{
             marginTop: 26,
@@ -86,8 +81,12 @@ export default function Page() {
                 fontSize: 13,
               }}
             >
-              <span style={{ color: "var(--brand-blue)" }}>FIP a portata di mano</span>
-              <span style={{ color: "var(--text-muted)" }}>• Supporto in Italia</span>
+              <span style={{ color: "var(--brand-blue)" }}>
+                FIP a portata di mano
+              </span>
+              <span style={{ color: "var(--text-muted)" }}>
+                • Supporto in Italia
+              </span>
             </div>
 
             <h1 style={{ margin: "16px 0 10px", fontSize: 44, lineHeight: 1.08 }}>
@@ -104,54 +103,88 @@ export default function Page() {
               }}
             />
 
-            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 16, lineHeight: 1.7 }}>
+            <p
+              style={{
+                margin: 0,
+                color: "var(--text-muted)",
+                fontSize: 16,
+                lineHeight: 1.7,
+              }}
+            >
               FipQuick aiuta i proprietari di gatti a trovare rapidamente{" "}
-              <strong>farmacie con disponibilità</strong>, <strong>cliniche veterinarie</strong>,
-              <strong> caregiver</strong> e <strong>telemedicina</strong>. Informazioni chiare e
-              accesso protetto.
+              <strong>farmacie con disponibilità</strong>,{" "}
+              <strong>cliniche veterinarie</strong>, <strong>caregiver</strong>{" "}
+              e <strong>telemedicina</strong>. Informazioni chiare e accesso
+              protetto.
             </p>
 
             <div style={{ marginTop: 18 }}>
               <Link href="/app">
-                <button className="btn-primary">{isAuthed ? "Vai all’app" : "Apri l’app"}</button>
+                <button className="btn-primary">
+                  {isAuthed ? "Vai all’app" : "Apri l’app"}
+                </button>
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Sezioni base (testi bozza, poi li rifiniamo) */}
         <section style={{ marginTop: 18, display: "grid", gap: 12 }}>
           <div className="card" style={{ padding: 16, borderRadius: 22 }}>
             <div style={{ fontWeight: 950 }}>📍 Cosa trovi nell’app</div>
-            <div style={{ color: "var(--text-muted)", marginTop: 8, lineHeight: 1.65 }}>
-              - Farmacie con disponibilità (quando inserite dal team)<br />
-              - Cliniche veterinarie di supporto<br />
-              - Caregiver per assistenza nella terapia<br />
-              - Telemedicina (consulto e orientamento)
+            <div
+              style={{
+                color: "var(--text-muted)",
+                marginTop: 8,
+                lineHeight: 1.65,
+              }}
+            >
+              - Farmacie con disponibilità (quando inserite dal team)
+              <br />
+              - Cliniche veterinarie di supporto
+              <br />
+              - Caregiver per assistenza nella terapia
+              <br />- Telemedicina (consulto e orientamento)
             </div>
           </div>
 
           <div className="card" style={{ padding: 16, borderRadius: 22 }}>
             <div style={{ fontWeight: 950 }}>🧭 Come funziona</div>
-            <div style={{ color: "var(--text-muted)", marginTop: 8, lineHeight: 1.65 }}>
-              1) Apri l’app<br />
-              2) Accedi<br />
+            <div
+              style={{
+                color: "var(--text-muted)",
+                marginTop: 8,
+                lineHeight: 1.65,
+              }}
+            >
+              1) Apri l’app
+              <br />
+              2) Accedi
+              <br />
               3) Cerca e filtra le risorse disponibili nella tua zona
             </div>
           </div>
 
           <div className="card" style={{ padding: 16, borderRadius: 22 }}>
             <div style={{ fontWeight: 950 }}>🤝 Chi siamo</div>
-            <div style={{ color: "var(--text-muted)", marginTop: 8, lineHeight: 1.65 }}>
-              Un gruppo di volontari e professionisti che supporta i proprietari di gatti con FIP,
-              offrendo orientamento e strumenti pratici.
+            <div
+              style={{
+                color: "var(--text-muted)",
+                marginTop: 8,
+                lineHeight: 1.65,
+              }}
+            >
+              Un gruppo di volontari e professionisti che supporta i proprietari
+              di gatti con FIP, offrendo orientamento e strumenti pratici.
             </div>
           </div>
         </section>
 
-        <footer style={{ marginTop: 18, color: "var(--text-muted)", fontSize: 13 }}>
+        <footer
+          style={{ marginTop: 18, color: "var(--text-muted)", fontSize: 13 }}
+        >
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 14 }}>
-            Le informazioni presenti nell’app vengono aggiornate dal team tramite database.
+            Le informazioni presenti nell’app vengono aggiornate dal team
+            tramite database.
           </div>
         </footer>
       </div>
