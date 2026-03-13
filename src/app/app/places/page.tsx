@@ -425,7 +425,7 @@ export default function PlacesPage() {
             onClick={handleUseMyPosition}
             disabled={geoLoading}
           >
-            {geoLoading ? "Rilevamento posizione..." : "📍 Usa la mia posizione"}
+            {geoLoading ? "Rilevamento posizione..." : "TEST GEO FIPQUICK 123"}
           </button>
 
           {userCoords && (
