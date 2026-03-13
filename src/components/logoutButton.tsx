@@ -40,6 +40,10 @@ export default function LogoutButton() {
       onClick={handleLogout}
       disabled={loading}
       className="btn-secondary"
+      style={{
+        borderRadius: 999,
+        padding: "10px 16px",
+      }}
     >
       {loading ? "Uscita..." : "Logout"}
     </button>

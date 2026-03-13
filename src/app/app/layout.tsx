@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import LogoutButton from "@/components/logoutButton";
+import LogoutButton from "@/components/LogoutButton";
 
 export default function AppLayout({
   children,
@@ -69,13 +69,13 @@ export default function AppLayout({
         }}
       >
         <div
+          className="card"
           style={{
-            padding: 20,
-            borderRadius: 20,
-            border: "1px solid var(--border)",
-            background: "white",
-            boxShadow: "0 18px 50px rgba(15,23,42,0.08)",
-            fontWeight: 700,
+            padding: 22,
+            borderRadius: 22,
+            fontWeight: 800,
+            background:
+              "radial-gradient(500px 140px at 15% 0%, rgba(242,184,75,0.16) 0%, rgba(242,184,75,0) 60%), radial-gradient(500px 140px at 85% 0%, rgba(73,179,191,0.14) 0%, rgba(73,179,191,0) 60%), white",
           }}
         >
           Caricamento area riservata...
@@ -91,8 +91,8 @@ export default function AppLayout({
           position: "sticky",
           top: 0,
           zIndex: 20,
-          background: "rgba(255,255,255,0.92)",
-          backdropFilter: "blur(10px)",
+          background: "rgba(255,250,248,0.88)",
+          backdropFilter: "blur(12px)",
           borderBottom: "1px solid var(--border)",
         }}
       >
@@ -102,15 +102,36 @@ export default function AppLayout({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 12,
+            gap: 14,
             padding: "14px 0",
             flexWrap: "wrap",
           }}
         >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900 }}>FipQuick</div>
-            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-              Area riservata
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: 14,
+                background:
+                  "linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-primary) 100%)",
+                display: "grid",
+                placeItems: "center",
+                color: "white",
+                fontWeight: 900,
+                boxShadow: "0 10px 24px rgba(73,179,191,0.18)",
+              }}
+            >
+              FQ
+            </div>
+
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 950, lineHeight: 1 }}>
+                FipQuick
+              </div>
+              <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
+                Area riservata
+              </div>
             </div>
           </div>
 
@@ -126,11 +147,12 @@ export default function AppLayout({
               <div
                 style={{
                   fontSize: 13,
-                  color: "var(--text-muted)",
-                  padding: "8px 12px",
+                  color: "var(--text-primary)",
+                  padding: "9px 12px",
                   borderRadius: 999,
                   border: "1px solid var(--border)",
-                  background: "white",
+                  background: "rgba(255,255,255,0.9)",
+                  fontWeight: 700,
                 }}
               >
                 {userEmail}
@@ -142,7 +164,7 @@ export default function AppLayout({
         </div>
       </header>
 
-      <main className="container" style={{ padding: "20px 0 40px" }}>
+      <main className="container" style={{ padding: "22px 0 40px" }}>
         {children}
       </main>
     </div>

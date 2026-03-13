@@ -20,7 +20,7 @@ export default function Page() {
   }, []);
 
   return (
-    <main style={{ background: "var(--bg)", padding: "40px 0 70px" }}>
+    <main style={{ background: "var(--bg)", padding: "34px 0 70px" }}>
       <div className="container">
         <header
           style={{
@@ -31,22 +31,32 @@ export default function Page() {
             flexWrap: "wrap",
           }}
         >
-          <Link
-            href="/"
-            style={{ display: "flex", alignItems: "center", gap: 12 }}
-          >
-            <img
-              src="/logo.png"
-              alt="FipQuick"
-              width={44}
-              height={44}
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
               style={{
-                borderRadius: 12,
-                objectFit: "cover",
-                border: "2px solid rgba(31,42,68,0.10)",
+                width: 46,
+                height: 46,
+                borderRadius: 16,
+                background:
+                  "linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-primary) 100%)",
+                display: "grid",
+                placeItems: "center",
+                color: "white",
+                fontWeight: 900,
+                boxShadow: "0 12px 28px rgba(73,179,191,0.20)",
               }}
-            />
-            <div style={{ fontWeight: 950, letterSpacing: 0.2 }}>FipQuick</div>
+            >
+              FQ
+            </div>
+
+            <div>
+              <div style={{ fontWeight: 950, letterSpacing: 0.2, fontSize: 20 }}>
+                FipQuick
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                Supporto chiaro, vicino, rapido
+              </div>
+            </div>
           </Link>
 
           <Link href="/app">
@@ -57,17 +67,16 @@ export default function Page() {
         </header>
 
         <section
+          className="card"
           style={{
             marginTop: 26,
-            border: "1px solid var(--border)",
-            borderRadius: 26,
-            padding: "26px 22px",
+            borderRadius: 28,
+            padding: "30px 24px",
             background:
-              "radial-gradient(900px 240px at 12% 0%, rgba(230,192,77,0.22) 0%, rgba(230,192,77,0) 60%), radial-gradient(900px 240px at 85% 0%, rgba(44,167,160,0.18) 0%, rgba(44,167,160,0) 60%), white",
-            boxShadow: "0 18px 60px rgba(15,23,42,0.08)",
+              "radial-gradient(900px 240px at 12% 0%, rgba(242,184,75,0.22) 0%, rgba(242,184,75,0) 60%), radial-gradient(900px 240px at 84% 0%, rgba(73,179,191,0.18) 0%, rgba(73,179,191,0) 60%), radial-gradient(700px 180px at 50% 100%, rgba(191,101,176,0.12) 0%, rgba(191,101,176,0) 60%), white",
           }}
         >
-          <div style={{ maxWidth: 980 }}>
+          <div style={{ maxWidth: 930 }}>
             <div
               style={{
                 display: "inline-flex",
@@ -75,31 +84,34 @@ export default function Page() {
                 alignItems: "center",
                 padding: "8px 12px",
                 borderRadius: 999,
-                border: "1px solid var(--border)",
-                background: "rgba(255,255,255,0.9)",
+                border: "1px solid rgba(73,179,191,0.22)",
+                background: "rgba(255,255,255,0.88)",
                 fontWeight: 900,
                 fontSize: 13,
               }}
             >
-              <span style={{ color: "var(--brand-blue)" }}>
-                FIP a portata di mano
-              </span>
-              <span style={{ color: "var(--text-muted)" }}>
-                • Supporto in Italia
-              </span>
+              <span style={{ color: "var(--brand-primary)" }}>FIP a portata di mano</span>
+              <span style={{ color: "var(--text-muted)" }}>• rete di supporto</span>
             </div>
 
-            <h1 style={{ margin: "16px 0 10px", fontSize: 44, lineHeight: 1.08 }}>
-              Trova supporto vicino a te, in modo chiaro e veloce.
+            <h1
+              style={{
+                margin: "16px 0 10px",
+                fontSize: 46,
+                lineHeight: 1.05,
+                maxWidth: 820,
+              }}
+            >
+              Trova supporto affidabile vicino a te, in modo semplice e veloce.
             </h1>
 
             <div
               style={{
-                width: 84,
+                width: 92,
                 height: 6,
-                background: "var(--brand-yellow)",
-                borderRadius: 6,
-                margin: "12px 0 16px",
+                background: "linear-gradient(90deg, var(--brand-highlight), var(--brand-accent))",
+                borderRadius: 999,
+                margin: "14px 0 18px",
               }}
             />
 
@@ -107,84 +119,73 @@ export default function Page() {
               style={{
                 margin: 0,
                 color: "var(--text-muted)",
-                fontSize: 16,
-                lineHeight: 1.7,
+                fontSize: 17,
+                lineHeight: 1.75,
+                maxWidth: 780,
               }}
             >
-              FipQuick aiuta i proprietari di gatti a trovare rapidamente{" "}
-              <strong>farmacie con disponibilità</strong>,{" "}
-              <strong>cliniche veterinarie</strong>, <strong>caregiver</strong>{" "}
-              e <strong>telemedicina</strong>. Informazioni chiare e accesso
-              protetto.
+              FipQuick aiuta i proprietari di gatti a trovare rapidamente
+              <strong> farmacie</strong>, <strong>cliniche veterinarie</strong>,
+              <strong> caregiver</strong> e <strong>teleconsulto</strong>, con un
+              accesso ordinato, protetto e orientato alla praticità.
             </p>
 
-            <div style={{ marginTop: 18 }}>
+            <div style={{ marginTop: 22, display: "flex", gap: 12, flexWrap: "wrap" }}>
               <Link href="/app">
                 <button className="btn-primary">
                   {isAuthed ? "Vai all’app" : "Apri l’app"}
                 </button>
               </Link>
+
+              <Link href="/landing">
+                <button className="btn-secondary">Scopri di più</button>
+              </Link>
             </div>
           </div>
         </section>
 
-        <section style={{ marginTop: 18, display: "grid", gap: 12 }}>
-          <div className="card" style={{ padding: 16, borderRadius: 22 }}>
-            <div style={{ fontWeight: 950 }}>📍 Cosa trovi nell’app</div>
-            <div
-              style={{
-                color: "var(--text-muted)",
-                marginTop: 8,
-                lineHeight: 1.65,
-              }}
-            >
-              - Farmacie con disponibilità (quando inserite dal team)
-              <br />
-              - Cliniche veterinarie di supporto
-              <br />
-              - Caregiver per assistenza nella terapia
-              <br />- Telemedicina (consulto e orientamento)
+        <section
+          style={{
+            marginTop: 18,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: 12,
+          }}
+        >
+          <div className="card" style={{ padding: 18, borderRadius: 22 }}>
+            <div style={{ fontWeight: 950, marginBottom: 8 }}>📍 Cosa trovi</div>
+            <div style={{ color: "var(--text-muted)", lineHeight: 1.65 }}>
+              Farmacie, cliniche, caregiver e teleconsulto in un’unica esperienza
+              più ordinata e veloce.
             </div>
           </div>
 
-          <div className="card" style={{ padding: 16, borderRadius: 22 }}>
-            <div style={{ fontWeight: 950 }}>🧭 Come funziona</div>
-            <div
-              style={{
-                color: "var(--text-muted)",
-                marginTop: 8,
-                lineHeight: 1.65,
-              }}
-            >
-              1) Apri l’app
-              <br />
-              2) Accedi
-              <br />
-              3) Cerca e filtra le risorse disponibili nella tua zona
+          <div className="card" style={{ padding: 18, borderRadius: 22 }}>
+            <div style={{ fontWeight: 950, marginBottom: 8 }}>🧭 Come funziona</div>
+            <div style={{ color: "var(--text-muted)", lineHeight: 1.65 }}>
+              Accedi, cerca le strutture disponibili, filtra le opzioni utili e
+              trova più facilmente il supporto che ti serve.
             </div>
           </div>
 
-          <div className="card" style={{ padding: 16, borderRadius: 22 }}>
-            <div style={{ fontWeight: 950 }}>🤝 Chi siamo</div>
-            <div
-              style={{
-                color: "var(--text-muted)",
-                marginTop: 8,
-                lineHeight: 1.65,
-              }}
-            >
-              Un gruppo di volontari e professionisti che supporta i proprietari
-              di gatti con FIP, offrendo orientamento e strumenti pratici.
+          <div className="card" style={{ padding: 18, borderRadius: 22 }}>
+            <div style={{ fontWeight: 950, marginBottom: 8 }}>🤝 Per chi è</div>
+            <div style={{ color: "var(--text-muted)", lineHeight: 1.65 }}>
+              Pensato per chi ha bisogno di orientamento rapido e di una rete di
+              contatti più chiara attorno alla gestione FIP.
             </div>
           </div>
         </section>
 
         <footer
-          style={{ marginTop: 18, color: "var(--text-muted)", fontSize: 13 }}
+          style={{
+            marginTop: 20,
+            color: "var(--text-muted)",
+            fontSize: 13,
+          }}
         >
           <div style={{ borderTop: "1px solid var(--border)", paddingTop: 14 }}>
-            Le informazioni presenti nell’app vengono aggiornate dal team
-            tramite database.
+            Le informazioni presenti nell’app vengono aggiornate dal team tramite database.
           </div>
         </footer>
       </div>
