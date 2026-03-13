@@ -15,9 +15,21 @@ type Place = {
   plan: string | null;
   expires_on: string | null;
   created_at: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+type FavoriteRow = {
+  id: string;
+  place_id: string;
 };
 
 type CategoryKey = "Tutte" | "Farmacia" | "Clinica" | "Caregiver" | "Telemedicina";
+
+type UserCoords = {
+  latitude: number;
+  longitude: number;
+};
 
 function normalize(s: string) {
   return (s || "")
@@ -50,39 +62,64 @@ function categoryBadge(cat: CategoryKey) {
     case "Farmacia":
       return {
         label: "💊 Farmacia",
-        bg: "rgba(156,90,166,0.12)",
-        border: "rgba(156,90,166,0.35)",
-        color: "var(--brand-blue)",
+        bg: "rgba(191, 101, 176, 0.12)",
+        border: "rgba(191, 101, 176, 0.35)",
+        color: "var(--brand-primary)",
       };
     case "Clinica":
       return {
         label: "🏥 Clinica",
-        bg: "rgba(44,167,160,0.12)",
-        border: "rgba(44,167,160,0.35)",
-        color: "var(--brand-blue)",
+        bg: "rgba(73, 179, 191, 0.12)",
+        border: "rgba(73, 179, 191, 0.35)",
+        color: "var(--brand-primary)",
       };
     case "Caregiver":
       return {
         label: "🤝 Caregiver",
-        bg: "rgba(241,138,61,0.12)",
-        border: "rgba(241,138,61,0.35)",
-        color: "var(--brand-blue)",
+        bg: "rgba(242, 112, 82, 0.12)",
+        border: "rgba(242, 112, 82, 0.35)",
+        color: "var(--brand-primary)",
       };
     case "Telemedicina":
       return {
         label: "📞 Telemedicina",
-        bg: "rgba(230,192,77,0.22)",
-        border: "rgba(230,192,77,0.55)",
-        color: "var(--brand-blue)",
+        bg: "rgba(242, 184, 75, 0.20)",
+        border: "rgba(242, 184, 75, 0.45)",
+        color: "var(--brand-primary)",
       };
     default:
       return {
         label: "📍 Supporto",
-        bg: "rgba(15,23,42,0.05)",
-        border: "rgba(226,232,240,0.9)",
-        color: "var(--brand-blue)",
+        bg: "rgba(43, 34, 48, 0.05)",
+        border: "rgba(234, 223, 220, 0.9)",
+        color: "var(--brand-primary)",
       };
   }
+}
+
+function toRad(value: number) {
+  return (value * Math.PI) / 180;
+}
+
+function distanceKm(
+  userLat: number,
+  userLon: number,
+  placeLat: number,
+  placeLon: number
+) {
+  const earthRadius = 6371;
+  const dLat = toRad(placeLat - userLat);
+  const dLon = toRad(placeLon - userLon);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(userLat)) *
+      Math.cos(toRad(placeLat)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadius * c;
 }
 
 export default function PlacesPage() {
@@ -96,45 +133,94 @@ export default function PlacesPage() {
   const [onlyActive, setOnlyActive] = useState(true);
   const [category, setCategory] = useState<CategoryKey>("Tutte");
 
-  const [openContactId, setOpenContactId] = useState<string | null>(null);
-  const [contactMessage, setContactMessage] = useState("");
-  const [sendingId, setSendingId] = useState<string | null>(null);
-  const [contactOk, setContactOk] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<FavoriteRow[]>([]);
+  const [favoriteLoadingId, setFavoriteLoadingId] = useState<string | null>(null);
+
+  const [userCoords, setUserCoords] = useState<UserCoords | null>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [maxDistanceKm, setMaxDistanceKm] = useState<number>(0);
 
   useEffect(() => {
     async function init() {
       setLoading(true);
       setError(null);
 
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
         router.replace("/login");
         return;
       }
 
-      const { data, error } = await supabase
-        .from("places")
-        .select("id,name,category,address,phone,website,is_active,plan,expires_on,created_at")
-        .order("created_at", { ascending: false });
+      setUserId(session.user.id);
 
-      if (error) {
-        setError(error.message);
+      const [{ data: placesData, error: placesError }, { data: favData, error: favError }] =
+        await Promise.all([
+          supabase
+            .from("places")
+            .select(
+              "id,name,category,address,phone,website,is_active,plan,expires_on,created_at,latitude,longitude"
+            )
+            .order("created_at", { ascending: false }),
+          supabase.from("favorites").select("id,place_id").eq("user_id", session.user.id),
+        ]);
+
+      if (placesError) {
+        setError(placesError.message);
         setPlaces([]);
         setLoading(false);
         return;
       }
 
-      setPlaces((data ?? []) as Place[]);
+      if (favError) {
+        setError(favError.message);
+        setPlaces([]);
+        setLoading(false);
+        return;
+      }
+
+      setPlaces((placesData ?? []) as Place[]);
+      setFavorites((favData ?? []) as FavoriteRow[]);
       setLoading(false);
     }
 
     init();
   }, [router]);
 
+  const favoritePlaceIds = useMemo(() => {
+    return new Set(favorites.map((f) => f.place_id));
+  }, [favorites]);
+
   const filtered = useMemo(() => {
     const query = normalize(q);
 
-    return places
+    const withDistance = places.map((p) => {
+      let distance: number | null = null;
+
+      if (
+        userCoords &&
+        typeof p.latitude === "number" &&
+        typeof p.longitude === "number"
+      ) {
+        distance = distanceKm(
+          userCoords.latitude,
+          userCoords.longitude,
+          p.latitude,
+          p.longitude
+        );
+      }
+
+      return {
+        ...p,
+        distance,
+      };
+    });
+
+    let result = withDistance
       .filter((p) => (onlyActive ? p.is_active !== false : true))
       .filter((p) => {
         const key = getCategoryKey(p.category);
@@ -147,41 +233,91 @@ export default function PlacesPage() {
         );
         return blob.includes(query);
       });
-  }, [places, onlyActive, category, q]);
 
-  async function handleSendContact(place: Place) {
-    setContactOk(null);
-    setSendingId(place.id);
+    if (userCoords && maxDistanceKm > 0) {
+      result = result.filter((p) => p.distance !== null && p.distance <= maxDistanceKm);
+    }
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    if (userCoords) {
+      result.sort((a, b) => {
+        if (a.distance === null && b.distance === null) return 0;
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return a.distance - b.distance;
+      });
+    }
 
-    if (!session?.user) {
-      router.replace("/login");
-      setSendingId(null);
+    return result;
+  }, [places, onlyActive, category, q, userCoords, maxDistanceKm]);
+
+  async function toggleFavorite(place: Place) {
+    if (!userId) return;
+
+    setFavoriteLoadingId(place.id);
+
+    const existing = favorites.find((f) => f.place_id === place.id);
+
+    if (existing) {
+      const { error } = await supabase.from("favorites").delete().eq("id", existing.id);
+
+      setFavoriteLoadingId(null);
+
+      if (error) {
+        alert(`Errore rimozione preferito: ${error.message}`);
+        return;
+      }
+
+      setFavorites((prev) => prev.filter((f) => f.id !== existing.id));
       return;
     }
 
-    const { error } = await supabase.from("contact_requests").insert({
-      user_id: session.user.id,
-      user_email: session.user.email ?? null,
-      place_id: place.id,
-      place_name: place.name,
-      message: contactMessage.trim() || null,
-      status: "Nuova",
-    });
+    const { data, error } = await supabase
+      .from("favorites")
+      .insert({
+        user_id: userId,
+        place_id: place.id,
+      })
+      .select("id,place_id")
+      .single();
 
-    setSendingId(null);
+    setFavoriteLoadingId(null);
 
     if (error) {
-      alert(`Errore invio richiesta: ${error.message}`);
+      alert(`Errore salvataggio preferito: ${error.message}`);
       return;
     }
 
-    setContactOk(place.id);
-    setContactMessage("");
-    setOpenContactId(null);
+    if (data) {
+      setFavorites((prev) => [...prev, data as FavoriteRow]);
+    }
+  }
+
+  function handleUseMyPosition() {
+    if (!navigator.geolocation) {
+      setGeoError("Geolocalizzazione non supportata dal browser.");
+      return;
+    }
+
+    setGeoLoading(true);
+    setGeoError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserCoords({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setGeoLoading(false);
+      },
+      () => {
+        setGeoError("Impossibile ottenere la posizione.");
+        setGeoLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+      }
+    );
   }
 
   if (loading) return <p>Caricamento...</p>;
@@ -191,9 +327,6 @@ export default function PlacesPage() {
       <div>
         <h1 style={{ marginTop: 0 }}>Luoghi</h1>
         <p style={{ color: "crimson" }}>Errore: {error}</p>
-        <p style={{ color: "var(--text-muted)" }}>
-          Se l’errore parla di policy/RLS, Supabase sta bloccando la lettura.
-        </p>
       </div>
     );
   }
@@ -229,7 +362,7 @@ export default function PlacesPage() {
           padding: 14,
           borderRadius: 22,
           background:
-            "radial-gradient(900px 220px at 18% 0%, rgba(230,192,77,0.20) 0%, rgba(230,192,77,0) 60%), radial-gradient(900px 220px at 84% 0%, rgba(44,167,160,0.16) 0%, rgba(44,167,160,0) 60%), white",
+            "radial-gradient(900px 220px at 18% 0%, rgba(242,184,75,0.20) 0%, rgba(242,184,75,0) 60%), radial-gradient(900px 220px at 84% 0%, rgba(73,179,191,0.16) 0%, rgba(73,179,191,0) 60%), white",
         }}
       >
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
@@ -286,6 +419,51 @@ export default function PlacesPage() {
             />
             Mostra solo attivi
           </label>
+
+          <button
+            className="btn-secondary"
+            onClick={handleUseMyPosition}
+            disabled={geoLoading}
+          >
+            {geoLoading ? "Rilevamento posizione..." : "📍 Usa la mia posizione"}
+          </button>
+
+          {userCoords && (
+            <select
+              value={maxDistanceKm}
+              onChange={(e) => setMaxDistanceKm(Number(e.target.value))}
+              style={{
+                width: "100%",
+                padding: "12px 12px",
+                borderRadius: 14,
+                border: "1px solid var(--border)",
+                background: "white",
+                fontSize: 14,
+              }}
+            >
+              <option value={0}>Nessun limite distanza</option>
+              <option value={5}>Entro 5 km</option>
+              <option value={10}>Entro 10 km</option>
+              <option value={25}>Entro 25 km</option>
+              <option value={50}>Entro 50 km</option>
+              <option value={100}>Entro 100 km</option>
+            </select>
+          )}
+
+          {geoError && (
+            <div
+              style={{
+                color: "#b91c1c",
+                fontSize: 14,
+                background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.18)",
+                borderRadius: 12,
+                padding: 10,
+              }}
+            >
+              {geoError}
+            </div>
+          )}
         </div>
 
         <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -318,47 +496,91 @@ export default function PlacesPage() {
           {filtered.map((p) => {
             const key = getCategoryKey(p.category);
             const b = categoryBadge(key);
-
             const isInactive = p.is_active === false;
+            const isFavorite = favoritePlaceIds.has(p.id);
 
             return (
               <div key={p.id} className="card" style={{ padding: 14, borderRadius: 20 }}>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-                  <div style={{ fontWeight: 950, fontSize: 16, marginRight: 6 }}>{p.name}</div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                      <div style={{ fontWeight: 950, fontSize: 16, marginRight: 6 }}>{p.name}</div>
 
-                  <span
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: 999,
-                      border: `1px solid ${b.border}`,
-                      background: b.bg,
-                      color: b.color,
-                      fontSize: 12,
-                      fontWeight: 900,
-                      whiteSpace: "nowrap",
-                    }}
+                      <span
+                        style={{
+                          padding: "6px 10px",
+                          borderRadius: 999,
+                          border: `1px solid ${b.border}`,
+                          background: b.bg,
+                          color: b.color,
+                          fontSize: 12,
+                          fontWeight: 900,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {b.label}
+                      </span>
+
+                      <span
+                        style={{
+                          padding: "6px 10px",
+                          borderRadius: 999,
+                          border: "1px solid var(--border)",
+                          background: isInactive ? "rgba(244,63,94,0.12)" : "rgba(34,197,94,0.10)",
+                          color: isInactive ? "#be123c" : "#166534",
+                          fontSize: 12,
+                          fontWeight: 900,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {isInactive ? "Non attivo" : "Attivo"}
+                      </span>
+
+                      {p.distance !== null && (
+                        <span
+                          style={{
+                            padding: "6px 10px",
+                            borderRadius: 999,
+                            border: "1px solid rgba(73,179,191,0.28)",
+                            background: "rgba(73,179,191,0.10)",
+                            color: "var(--brand-primary)",
+                            fontSize: 12,
+                            fontWeight: 900,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {p.distance < 1
+                            ? `${Math.round(p.distance * 1000)} m`
+                            : `${p.distance.toFixed(1)} km`}
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ marginTop: 8, fontSize: 13, color: "var(--text-muted)" }}>
+                      {p.category}
+                    </div>
+                  </div>
+
+                  <button
+                    className={isFavorite ? "btn-primary" : "btn-secondary"}
+                    onClick={() => toggleFavorite(p)}
+                    disabled={favoriteLoadingId === p.id}
+                    style={{ minWidth: 160 }}
                   >
-                    {b.label}
-                  </span>
-
-                  <span
-                    style={{
-                      padding: "6px 10px",
-                      borderRadius: 999,
-                      border: "1px solid var(--border)",
-                      background: isInactive ? "rgba(244,63,94,0.12)" : "rgba(34,197,94,0.10)",
-                      color: isInactive ? "#be123c" : "#166534",
-                      fontSize: 12,
-                      fontWeight: 900,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {isInactive ? "Non attivo" : "Attivo"}
-                  </span>
-                </div>
-
-                <div style={{ marginTop: 8, fontSize: 13, color: "var(--text-muted)" }}>
-                  {p.category}
+                    {favoriteLoadingId === p.id
+                      ? "Attendere..."
+                      : isFavorite
+                      ? "★ Preferito"
+                      : "☆ Salva preferito"}
+                  </button>
                 </div>
 
                 <div style={{ marginTop: 10, fontSize: 13, color: "#334155", lineHeight: 1.7 }}>
@@ -389,7 +611,7 @@ export default function PlacesPage() {
                   style={{
                     marginTop: 12,
                     display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
+                    gridTemplateColumns: "1fr 1fr 1fr",
                     gap: 10,
                   }}
                 >
@@ -422,96 +644,7 @@ export default function PlacesPage() {
                       📞 Chiama
                     </button>
                   )}
-
-                  <button
-                    className="btn-primary"
-                    style={{ width: "100%" }}
-                    onClick={() => {
-                      setContactOk(null);
-                      setContactMessage("");
-                      setOpenContactId(openContactId === p.id ? null : p.id);
-                    }}
-                  >
-                    ✉️ Richiedi contatto
-                  </button>
                 </div>
-
-                {openContactId === p.id && (
-                  <div
-                    style={{
-                      marginTop: 12,
-                      padding: 12,
-                      borderRadius: 16,
-                      border: "1px solid var(--border)",
-                      background: "rgba(255,255,255,0.92)",
-                    }}
-                  >
-                    <div style={{ fontWeight: 800, marginBottom: 8 }}>
-                      Richiedi contatto per {p.name}
-                    </div>
-
-                    <textarea
-                      value={contactMessage}
-                      onChange={(e) => setContactMessage(e.target.value)}
-                      placeholder="Scrivi un breve messaggio o una nota utile..."
-                      rows={4}
-                      style={{
-                        width: "100%",
-                        padding: 12,
-                        borderRadius: 12,
-                        border: "1px solid var(--border)",
-                        resize: "vertical",
-                        fontFamily: "inherit",
-                        fontSize: 14,
-                      }}
-                    />
-
-                    <div
-                      style={{
-                        marginTop: 10,
-                        display: "flex",
-                        gap: 10,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <button
-                        className="btn-primary"
-                        onClick={() => handleSendContact(p)}
-                        disabled={sendingId === p.id}
-                      >
-                        {sendingId === p.id ? "Invio..." : "Invia richiesta"}
-                      </button>
-
-                      <button
-                        className="btn-secondary"
-                        onClick={() => {
-                          setOpenContactId(null);
-                          setContactMessage("");
-                        }}
-                        disabled={sendingId === p.id}
-                      >
-                        Annulla
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {contactOk === p.id && (
-                  <div
-                    style={{
-                      marginTop: 12,
-                      padding: 12,
-                      borderRadius: 14,
-                      background: "rgba(34,197,94,0.10)",
-                      border: "1px solid rgba(34,197,94,0.25)",
-                      color: "#166534",
-                      fontSize: 14,
-                      fontWeight: 700,
-                    }}
-                  >
-                    Richiesta inviata correttamente.
-                  </div>
-                )}
               </div>
             );
           })}
