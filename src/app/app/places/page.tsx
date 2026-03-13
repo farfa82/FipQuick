@@ -343,7 +343,7 @@ export default function PlacesPage() {
         }}
       >
         <div>
-          <h1 style={{ marginTop: 0, marginBottom: 6 }}>Luoghi</h1>
+          <h1 style={{ marginTop: 0, marginBottom: 6 }}>Luoghi GEO TEST</h1>
           <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.6 }}>
             Cerca supporto: farmacie, cliniche, caregiver e telemedicina.
           </p>
