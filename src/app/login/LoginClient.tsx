@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
 
   const redirectTo = searchParams.get("redirectTo") || "/app";
 
@@ -32,6 +33,7 @@ export default function LoginClient() {
     }
 
     router.replace(redirectTo);
+    router.refresh();
   }
 
   return (
@@ -77,11 +79,7 @@ export default function LoginClient() {
           }}
         />
 
-        <button
-          onClick={signIn}
-          disabled={loading}
-          className="btn-primary"
-        >
+        <button onClick={signIn} disabled={loading} className="btn-primary">
           {loading ? "Accesso..." : "Login"}
         </button>
 
