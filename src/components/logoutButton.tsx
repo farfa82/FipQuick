@@ -1,20 +1,47 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function LogoutButton() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   async function handleLogout() {
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
+    try {
+      setLoading(true);
+
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        alert("Errore durante il logout.");
+        console.error("Logout error:", error);
+        setLoading(false);
+        return;
+      }
+
+      router.replace("/login");
+      router.refresh();
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 150);
+    } catch (err) {
+      console.error("Logout catch error:", err);
+      alert("Si è verificato un problema durante il logout.");
+      setLoading(false);
+    }
   }
 
   return (
-    <button onClick={handleLogout} className="btn-secondary">
-      Logout
+    <button
+      type="button"
+      onClick={handleLogout}
+      disabled={loading}
+      className="btn-secondary"
+    >
+      {loading ? "Uscita..." : "Logout"}
     </button>
   );
 }
